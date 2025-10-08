@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+/* Futuristic rounded bottom shape for navbar */
+.clip-rounded-bottom {
+  clip-path: ellipse(100% 90% at 50% 0%);
+}
+/* Futuristic rounded top shape for footer */
+.clip-rounded-top {
+  clip-path: ellipse(100% 90% at 50% 100%);
+} 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional custom styles */
+body {
+  @apply bg-gray-50 text-gray-900;
+}
+
+.clip-rounded-bottom {
+  clip-path: ellipse(80% 100% at 50% 0%);
+}
+.clip-rounded-top {
+  clip-path: ellipse(80% 100% at 50% 100%);
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
