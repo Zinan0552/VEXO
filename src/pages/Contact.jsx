@@ -79,7 +79,7 @@ export default function Contact() {
               <Phone className="w-6 h-6 text-red-500" />
               <div>
                 <p className="font-semibold">Phone</p>
-                <p className="text-sm">+91 98765 43210</p>
+                <p className="text-sm">+91 9876543210</p>
               </div>
             </li>
             <li className="flex items-start gap-4">

@@ -38,6 +38,7 @@ export default function Register() {
       cart: [],
       wishlist: [],
       isLoggedIn: true,
+      role: "user",
       isBlock: false
     };
 

@@ -1,4 +1,6 @@
+
 // import { createContext, useContext, useState, useEffect } from "react";
+// import { Navigate, useNavigate } from "react-router-dom";
 
 // export const AuthContext = createContext();
 
@@ -7,7 +9,7 @@
 //   const [loading, setLoading] = useState(true);
 //   const [profileOpen, setProfileOpen] = useState(false);
 //   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+//   const Navigate = useNavigate();
 //   // Load user from localStorage on mount
 //   useEffect(() => {
 //     const storedUser = localStorage.getItem("user");
@@ -15,7 +17,8 @@
     
 //     if (isLoggedIn === 'true' && storedUser) {
 //       try {
-//         setUser(JSON.parse(storedUser));
+//         const parsedUser = JSON.parse(storedUser);
+//         setUser(parsedUser);
 //       } catch (error) {
 //         console.error("Error parsing stored user:", error);
 //         localStorage.removeItem("user");
@@ -25,10 +28,12 @@
 //     setLoading(false);
 //   }, []);
 
-//   // ✅ Login function - compatible with your existing logic
+//   // ✅ Enhanced Login function - Uses localStorage
 //   const login = async (email, password) => {
 //     try {
 //       const response = await fetch(`http://localhost:5001/users?email=${email}`);
+//       if (!response.ok) throw new Error("Failed to fetch user data");
+      
 //       const users = await response.json();
 //       const user = users[0];
 
@@ -36,17 +41,28 @@
 //       if (user.password !== password) throw new Error("Invalid password");
 //       if (user.isBlock) throw new Error("Account is blocked");
 
-//       // Update user login status
-//       const updatedUser = { ...user, isLoggedIn: true };
-//       await fetch(`http://localhost:5001/users/${user.id}`, {
-//         method: 'PATCH',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ isLoggedIn: true })
-//       });
+//       // Create user object with localStorage structure
+//       const updatedUser = { 
+//         ...user, 
+//         isLoggedIn: true,
+//         cart: user.cart || [],
+//         wishlist: user.wishlist || []
+//       };
 
-//       // Store in localStorage (matching your existing approach)
+//       // Store in localStorage (Primary storage)
 //       localStorage.setItem("isLoggedIn", "true");
 //       localStorage.setItem("user", JSON.stringify(updatedUser));
+
+//       // Optional: Update server (secondary)
+//       try {
+//         await fetch(`http://localhost:5001/users/${user.id}`, {
+//           method: 'PATCH',
+//           headers: { 'Content-Type': 'application/json' },
+//           body: JSON.stringify({ isLoggedIn: true })
+//         });
+//       } catch (error) {
+//         console.warn("Failed to update server login status:", error);
+//       }
 
 //       setUser(updatedUser);
 //       return updatedUser;
@@ -55,8 +71,13 @@
 //     }
 //   };
 
-//   // ✅ Logout function
+//   // ✅ Enhanced Logout function - Clears localStorage
 //   const logout = async () => {
+//     // Clear localStorage first
+//     localStorage.removeItem("user");
+//     localStorage.removeItem("isLoggedIn");
+    
+//     // Optional: Update server
 //     if (user?.id) {
 //       try {
 //         await fetch(`http://localhost:5001/users/${user.id}`, {
@@ -65,36 +86,87 @@
 //           body: JSON.stringify({ isLoggedIn: false })
 //         });
 //       } catch (error) {
-//         console.error("Error updating user login status:", error);
+//         console.warn("Error updating user login status on server:", error);
 //       }
 //     }
     
-//     localStorage.removeItem("user");
-//     localStorage.removeItem("isLoggedIn");
+//     // Clear state
 //     setUser(null);
 //     setProfileOpen(false);
+//     setMobileMenuOpen(false);
+//     Navigate("/login");
 //   };
 
-//   // ✅ Update user for cart/wishlist
+//   // ✅ Enhanced Update User function - Updates localStorage
 //   const updateUser = async (updatedUserData) => {
 //     try {
+//       const mergedUser = { ...user, ...updatedUserData };
+      
+//       // Update localStorage (Primary)
+//       localStorage.setItem("user", JSON.stringify(mergedUser));
+      
+//       // Update state
+//       setUser(mergedUser);
+      
+//       // Optional: Update server (secondary)
 //       if (user?.id) {
-//         await fetch(`http://localhost:5001/users/${user.id}`, {
-//           method: 'PATCH',
-//           headers: { 'Content-Type': 'application/json' },
-//           body: JSON.stringify(updatedUserData)
-//         });
+//         try {
+//           await fetch(`http://localhost:5001/users/${user.id}`, {
+//             method: 'PATCH',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify(updatedUserData)
+//           });
+//         } catch (error) {
+//           console.warn("Failed to update user on server:", error);
+//         }
 //       }
       
-//       const mergedUser = { ...user, ...updatedUserData };
-//       localStorage.setItem("user", JSON.stringify(mergedUser));
-//       setUser(mergedUser);
+//       return mergedUser;
 //     } catch (error) {
 //       console.error("Error updating user:", error);
+//       throw error;
 //     }
 //   };
 
-//   // ✅ Add to cart
+//   // ✅ Enhanced Register function - Adds to localStorage
+//   const register = async (userData) => {
+//     try {
+//       const response = await fetch('http://localhost:5001/users', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           ...userData,
+//           isLoggedIn: false,
+//           isBlock: false,
+//           cart: [],
+//           wishlist: [],
+//           createdAt: new Date().toISOString()
+//         })
+//       });
+
+//       if (!response.ok) throw new Error("Failed to create user");
+
+//       const newUser = await response.json();
+      
+//       // Auto-login after registration - Store in localStorage
+//       const loggedInUser = {
+//         ...newUser,
+//         isLoggedIn: true,
+//         cart: [],
+//         wishlist: []
+//       };
+      
+//       localStorage.setItem("isLoggedIn", "true");
+//       localStorage.setItem("user", JSON.stringify(loggedInUser));
+//       setUser(loggedInUser);
+      
+//       return loggedInUser;
+//     } catch (error) {
+//       throw new Error(error.message);
+//     }
+//   };
+
+//   // ✅ Enhanced Add to Cart function - Updates localStorage
 //   const addToCart = async (product) => {
 //     if (!user) throw new Error("Please login to add items to cart");
     
@@ -105,7 +177,7 @@
 //     if (existingItem) {
 //       updatedCart = currentCart.map(item =>
 //         item.id === product.id
-//           ? { ...item, quantity: item.quantity + 1 }
+//           ? { ...item, quantity: (item.quantity || 1) + 1 }
 //           : item
 //       );
 //     } else {
@@ -113,74 +185,158 @@
 //     }
     
 //     await updateUser({ cart: updatedCart });
+//     return updatedCart;
 //   };
 
-//   // ✅ Add to wishlist
-// const addToWishlist = async (product) => {
-//   if (!user) throw new Error("Please login to add items to wishlist");
+//   // ✅ Enhanced Add to Wishlist function - Updates localStorage
+//   const addToWishlist = async (product) => {
+//     if (!user) throw new Error("Please login to add items to wishlist");
 
-//   const currentWishlist = user.wishlist || [];
-//   const existingItem = currentWishlist.find(item => item.id === product.id);
+//     const currentWishlist = user.wishlist || [];
+//     const existingItem = currentWishlist.find(item => item.id === product.id);
 
-//   let updatedWishlist;
-//   if (existingItem) {
-//     updatedWishlist = currentWishlist.filter(item => item.id !== product.id);
-//   } else {
-//     updatedWishlist = [...currentWishlist, product];
-//   }
+//     let updatedWishlist;
+//     if (existingItem) {
+//       updatedWishlist = currentWishlist.filter(item => item.id !== product.id);
+//     } else {
+//       updatedWishlist = [...currentWishlist, product];
+//     }
 
-//   await updateUser({ wishlist: updatedWishlist });
-//   return updatedWishlist; // ✅ Return updated state
-// };
+//     await updateUser({ wishlist: updatedWishlist });
+//     return updatedWishlist;
+//   };
 
-
-//   // ✅ Remove from cart
+//   // ✅ Enhanced Remove from Cart function - Updates localStorage
 //   const removeFromCart = async (productId) => {
-//     if (!user) return;
+//     if (!user) throw new Error("Please login to manage cart");
     
-//     const updatedCart = user.cart.filter(item => item.id !== productId);
+//     const updatedCart = (user.cart || []).filter(item => item.id !== productId);
 //     await updateUser({ cart: updatedCart });
+//     return updatedCart;
 //   };
 
-//   // ✅ Update cart quantity
+//   // ✅ Enhanced Update Cart Quantity function - Updates localStorage
 //   const updateCartQuantity = async (productId, quantity) => {
-//     if (!user) return;
-//     if (quantity < 1) return;
+//     if (!user) throw new Error("Please login to manage cart");
+//     if (quantity < 1) {
+//       return await removeFromCart(productId);
+//     }
     
-//     const updatedCart = user.cart.map(item =>
+//     const updatedCart = (user.cart || []).map(item =>
 //       item.id === productId ? { ...item, quantity } : item
 //     );
     
 //     await updateUser({ cart: updatedCart });
+//     return updatedCart;
 //   };
 
-//   // ✅ Counts
-//   const wishlistCount = user?.wishlist?.length || 0;
-//   const cartCount = user?.cart?.reduce((total, item) => total + item.quantity, 0) || 0;
+//   // ✅ Clear Cart function - Updates localStorage
+//   const clearCart = async () => {
+//     if (!user) throw new Error("Please login to manage cart");
+//     await updateUser({ cart: [] });
+//   };
 
-//   // ✅ Check if product is in wishlist
+//   // ✅ Update Profile function - Updates localStorage
+//   const updateProfile = async (profileData) => {
+//     if (!user) throw new Error("Please login to update profile");
+    
+//     const updatedUserData = {
+//       firstName: profileData.firstName || user.firstName,
+//       lastName: profileData.lastName || user.lastName,
+//       email: profileData.email || user.email,
+//       phone: profileData.phone || user.phone,
+//       avatar: profileData.avatar || user.avatar
+//     };
+
+//     await updateUser(updatedUserData);
+//     return updatedUserData;
+//   };
+
+//   // ✅ Helper functions for localStorage operations
+//   const syncUserToLocalStorage = (userData) => {
+//     localStorage.setItem("user", JSON.stringify(userData));
+//   };
+
+//   const getUserFromLocalStorage = () => {
+//     const storedUser = localStorage.getItem("user");
+//     return storedUser ? JSON.parse(storedUser) : null;
+//   };
+
+//   const isUserLoggedIn = () => {
+//     return localStorage.getItem("isLoggedIn") === 'true';
+//   };
+
+//   // ✅ Computed values
+//   const getCartTotal = () => {
+//     if (!user?.cart) return 0;
+//     return user.cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
+//   };
+
+//   const getCartItemCount = () => {
+//     if (!user?.cart) return 0;
+//     return user.cart.reduce((total, item) => total + (item.quantity || 1), 0);
+//   };
+
+//   const getWishlistCount = () => {
+//     return user?.wishlist?.length || 0;
+//   };
+
 //   const isInWishlist = (productId) => {
 //     return user?.wishlist?.some(item => item.id === productId) || false;
 //   };
 
+//   const isInCart = (productId) => {
+//     return user?.cart?.some(item => item.id === productId) || false;
+//   };
+
+//   const getCartQuantity = (productId) => {
+//     const item = user?.cart?.find(item => item.id === productId);
+//     return item ? item.quantity : 0;
+//   };
+
 //   const value = {
+//     // User state
 //     user,
+//     loading,
+//     isAuthenticated: !!user,
+    
+//     // Auth functions
 //     login,
 //     logout,
-//     updateUser,
+//     register,
+//     updateProfile,
+    
+//     // Cart functions
 //     addToCart,
-//     addToWishlist,
 //     removeFromCart,
 //     updateCartQuantity,
+//     clearCart,
+//     getCartTotal,
+//     getCartItemCount,
+//     isInCart,
+//     getCartQuantity,
+    
+//     // Wishlist functions
+//     addToWishlist,
 //     isInWishlist,
-//     wishlistCount,
-//     cartCount,
+    
+//     // UI state
 //     profileOpen,
 //     setProfileOpen,
 //     mobileMenuOpen,
 //     setMobileMenuOpen,
-//     loading,
-//     isAuthenticated: !!user
+    
+//     // Computed values
+//     wishlistCount: getWishlistCount(),
+//     cartCount: getCartItemCount(),
+    
+//     // Enhanced update function
+//     updateUser,
+    
+//     // LocalStorage helpers
+//     syncUserToLocalStorage,
+//     getUserFromLocalStorage,
+//     isUserLoggedIn
 //   };
 
 //   return (
@@ -190,7 +346,7 @@
 //   );
 // };
 
-// // ✅ Custom hook
+// // ✅ Enhanced custom hook with error boundary
 // export const useAuth = () => {
 //   const context = useContext(AuthContext);
 //   if (!context) {
@@ -199,10 +355,7 @@
 //   return context;
 // };
 
-
-
 import { createContext, useContext, useState, useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
@@ -211,12 +364,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const Navigate = useNavigate();
-  // Load user from localStorage on mount
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const isLoggedIn = localStorage.getItem("isLoggedIn");
-    
+
     if (isLoggedIn === 'true' && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
@@ -230,7 +382,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // ✅ Enhanced Login function - Uses localStorage
   const login = async (email, password) => {
     try {
       const response = await fetch(`http://localhost:5001/users?email=${email}`);
@@ -243,7 +394,6 @@ export const AuthProvider = ({ children }) => {
       if (user.password !== password) throw new Error("Invalid password");
       if (user.isBlock) throw new Error("Account is blocked");
 
-      // Create user object with localStorage structure
       const updatedUser = { 
         ...user, 
         isLoggedIn: true,
@@ -251,11 +401,9 @@ export const AuthProvider = ({ children }) => {
         wishlist: user.wishlist || []
       };
 
-      // Store in localStorage (Primary storage)
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Optional: Update server (secondary)
       try {
         await fetch(`http://localhost:5001/users/${user.id}`, {
           method: 'PATCH',
@@ -267,19 +415,13 @@ export const AuthProvider = ({ children }) => {
       }
 
       setUser(updatedUser);
-      return updatedUser;
+      return { success: true, user: updatedUser };
     } catch (error) {
-      throw new Error(error.message);
+      return { success: false, error: error.message };
     }
   };
 
-  // ✅ Enhanced Logout function - Clears localStorage
   const logout = async () => {
-    // Clear localStorage first
-    localStorage.removeItem("user");
-    localStorage.removeItem("isLoggedIn");
-    
-    // Optional: Update server
     if (user?.id) {
       try {
         await fetch(`http://localhost:5001/users/${user.id}`, {
@@ -291,26 +433,22 @@ export const AuthProvider = ({ children }) => {
         console.warn("Error updating user login status on server:", error);
       }
     }
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
     
-    // Clear state
     setUser(null);
     setProfileOpen(false);
     setMobileMenuOpen(false);
-    Navigate("/login");
   };
 
-  // ✅ Enhanced Update User function - Updates localStorage
   const updateUser = async (updatedUserData) => {
     try {
       const mergedUser = { ...user, ...updatedUserData };
-      
-      // Update localStorage (Primary)
       localStorage.setItem("user", JSON.stringify(mergedUser));
-      
-      // Update state
       setUser(mergedUser);
-      
-      // Optional: Update server (secondary)
+      console.log(updateUser.role);
+
       if (user?.id) {
         try {
           await fetch(`http://localhost:5001/users/${user.id}`, {
@@ -322,7 +460,6 @@ export const AuthProvider = ({ children }) => {
           console.warn("Failed to update user on server:", error);
         }
       }
-      
       return mergedUser;
     } catch (error) {
       console.error("Error updating user:", error);
@@ -330,7 +467,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Enhanced Register function - Adds to localStorage
   const register = async (userData) => {
     try {
       const response = await fetch('http://localhost:5001/users', {
@@ -350,7 +486,6 @@ export const AuthProvider = ({ children }) => {
 
       const newUser = await response.json();
       
-      // Auto-login after registration - Store in localStorage
       const loggedInUser = {
         ...newUser,
         isLoggedIn: true,
@@ -362,13 +497,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(loggedInUser));
       setUser(loggedInUser);
       
-      return loggedInUser;
+      return { success: true, user: loggedInUser };
     } catch (error) {
-      throw new Error(error.message);
+      return { success: false, error: error.message };
     }
   };
 
-  // ✅ Enhanced Add to Cart function - Updates localStorage
   const addToCart = async (product) => {
     if (!user) throw new Error("Please login to add items to cart");
     
@@ -390,7 +524,6 @@ export const AuthProvider = ({ children }) => {
     return updatedCart;
   };
 
-  // ✅ Enhanced Add to Wishlist function - Updates localStorage
   const addToWishlist = async (product) => {
     if (!user) throw new Error("Please login to add items to wishlist");
 
@@ -408,18 +541,16 @@ export const AuthProvider = ({ children }) => {
     return updatedWishlist;
   };
 
-  // ✅ Enhanced Remove from Cart function - Updates localStorage
   const removeFromCart = async (productId) => {
     if (!user) throw new Error("Please login to manage cart");
-    
     const updatedCart = (user.cart || []).filter(item => item.id !== productId);
     await updateUser({ cart: updatedCart });
     return updatedCart;
   };
 
-  // ✅ Enhanced Update Cart Quantity function - Updates localStorage
   const updateCartQuantity = async (productId, quantity) => {
     if (!user) throw new Error("Please login to manage cart");
+    
     if (quantity < 1) {
       return await removeFromCart(productId);
     }
@@ -432,13 +563,11 @@ export const AuthProvider = ({ children }) => {
     return updatedCart;
   };
 
-  // ✅ Clear Cart function - Updates localStorage
   const clearCart = async () => {
     if (!user) throw new Error("Please login to manage cart");
     await updateUser({ cart: [] });
   };
 
-  // ✅ Update Profile function - Updates localStorage
   const updateProfile = async (profileData) => {
     if (!user) throw new Error("Please login to update profile");
     
@@ -454,7 +583,6 @@ export const AuthProvider = ({ children }) => {
     return updatedUserData;
   };
 
-  // ✅ Helper functions for localStorage operations
   const syncUserToLocalStorage = (userData) => {
     localStorage.setItem("user", JSON.stringify(userData));
   };
@@ -468,7 +596,6 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem("isLoggedIn") === 'true';
   };
 
-  // ✅ Computed values
   const getCartTotal = () => {
     if (!user?.cart) return 0;
     return user.cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
@@ -497,18 +624,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = {
-    // User state
     user,
     loading,
     isAuthenticated: !!user,
-    
-    // Auth functions
+    isAdmin: !!user && user.role === 'admin',
+
     login,
     logout,
     register,
     updateProfile,
-    
-    // Cart functions
+
     addToCart,
     removeFromCart,
     updateCartQuantity,
@@ -517,25 +642,20 @@ export const AuthProvider = ({ children }) => {
     getCartItemCount,
     isInCart,
     getCartQuantity,
-    
-    // Wishlist functions
+
     addToWishlist,
     isInWishlist,
-    
-    // UI state
+
     profileOpen,
     setProfileOpen,
     mobileMenuOpen,
     setMobileMenuOpen,
-    
-    // Computed values
+
     wishlistCount: getWishlistCount(),
     cartCount: getCartItemCount(),
-    
-    // Enhanced update function
+
     updateUser,
-    
-    // LocalStorage helpers
+
     syncUserToLocalStorage,
     getUserFromLocalStorage,
     isUserLoggedIn
@@ -548,7 +668,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ Enhanced custom hook with error boundary
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

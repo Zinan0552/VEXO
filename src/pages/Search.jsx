@@ -1,6 +1,5 @@
 import { useLocation } from 'react-router-dom';
 import { Product } from '../data/Product.js';
-import ProductGrid from '../components/ProductGrid';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);

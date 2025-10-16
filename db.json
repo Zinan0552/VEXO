@@ -1,413 +1,137 @@
 {
   "users": [
     {
-      "id": "b12d",
-      "username": "sinan",
-      "email": "sdfghjkl@gmail.com",
-      "password": "34567890"
-    },
-    {
-      "id": "299d",
-      "username": "nabu",
-      "email": "nabu@gmail.com",
-      "password": "zxcvbnm"
-    },
-    {
-      "id": "886a",
-      "username": "nabu",
-      "email": "nabu@gmail.com",
-      "password": "zxcvbnm"
-    },
-    {
-      "id": "9503",
-      "username": "auto",
-      "email": "auto@gmail.com",
-      "password": "zxcvbnm",
-      "cart": [
-        {
-          "id": 1,
-          "name": "Premium Gi - Black Edition",
-          "description": "Professional grade karate uniform made from premium cotton canvas with reinforced stitching",
-          "price": 89.99,
-          "category": "uniforms",
-          "image": "https://i.pinimg.com/736x/2f/0d/c9/2f0dc90a2876dcfa305861d4177a3880.jpg",
-          "rating": 4.8,
-          "reviews": 124,
-          "inStock": true,
-          "quantity": 1
-        }
-      ],
+      "id": "c524",
+      "username": "shinas",
+      "email": "shinas@gmail.com",
+      "password": "123456789",
+      "cart": [],
       "wishlist": [],
-      "isLoggedIn": false,
+      "isLoggedIn": true,
+      "role": "admin",
       "isBlock": false,
       "orders": [
         {
-          "id": 1759748002095,
+          "id": 1760119267174,
           "items": [
             {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            },
-            {
-              "id": "1",
-              "name": "Xtreme Jogger Black",
-              "category": "Joggers",
-              "price": 1499,
-              "image": "https://picsum.photos/300/300?1",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 3098,
-          "shippingDetails": {
-            "fullName": "hdbshd",
-            "email": "dhs@gmail.com",
-            "address": "dhgehfjf",
-            "city": "shgdshg",
-            "postalCode": "142134",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "2025-10-06T10:53:22.095Z"
-        },
-        {
-          "id": 1759748181161,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1599,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "dshdjgfs",
-            "email": "auto@gmail.com",
-            "address": "hfgdhgf",
-            "city": "dhhgdw",
-            "postalCode": "124314234",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:26:21"
-        },
-        {
-          "id": 1759748290830,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            },
-            {
-              "id": "3",
-              "name": "Xtreme Tshirt White",
-              "category": "Tshirts",
-              "price": 999,
-              "image": "https://picsum.photos/300/300?3",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 2598,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "sdgnhsdg",
-            "email": "auto@gmail.com",
-            "address": "sgshdhd",
-            "city": "jwtfdwh",
-            "postalCode": "12431432",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:28:10"
-        },
-        {
-          "id": 1759748514346,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1599,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "dsdjdhsd",
-            "email": "auto@gmail.com",
-            "address": "dsdfdf",
-            "city": "sfsfsdfdf",
-            "postalCode": "123243",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:31:54"
-        },
-        {
-          "id": 1759748756712,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1599,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "fsdfdfd",
-            "email": "auto@gmail.com",
-            "address": "fdghjkjhgf",
-            "city": "wertyu",
-            "postalCode": "87654",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:35:56"
-        },
-        {
-          "id": 1759749176587,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1604,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "wertyu",
-            "email": "auto@gmail.com",
-            "address": "dfghj",
-            "city": "ertyu",
-            "postalCode": "23456",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:42:56"
-        },
-        {
-          "id": 1759749363116,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1604,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "zxcvbnm",
-            "email": "auto@gmail.com",
-            "address": "xcvbn",
-            "city": "ertyu",
-            "postalCode": "123456",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:46:03"
-        },
-        {
-          "id": 1759749650371,
-          "items": [
-            {
-              "id": "1",
-              "name": "Xtreme Jogger Black",
-              "category": "Joggers",
-              "price": 1499,
-              "image": "https://picsum.photos/300/300?1",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1504,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "asdfgh",
-            "email": "auto@gmail.com",
-            "address": "sdfgh",
-            "city": "uytfd",
-            "postalCode": "12345",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:50:50"
-        },
-        {
-          "id": 1759749713683,
-          "items": [
-            {
-              "id": "3",
-              "name": "Xtreme Tshirt White",
-              "category": "Tshirts",
-              "price": 999,
-              "image": "https://picsum.photos/300/300?3",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1004,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "asdfgh",
-            "email": "auto@gmail.com",
-            "address": "jhgfgh",
-            "city": "rtyuj",
-            "postalCode": "12345",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:51:53"
-        },
-        {
-          "id": 1759749748077,
-          "items": [
-            {
-              "id": "2",
-              "name": "Xtreme Jogger Red",
-              "category": "Joggers",
-              "price": 1599,
-              "image": "https://picsum.photos/300/300?2",
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 1604,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "qwert",
-            "email": "auto@gmail.com",
-            "address": "sdfgh",
-            "city": "rty",
-            "postalCode": "09876",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "06/10/2025, 16:52:28"
-        },
-        {
-          "id": 1759819353534,
-          "items": [
-            {
-              "id": 26,
-              "name": "Platinum Signet Ring",
-              "description": "Solid platinum ring with ancient martial arts symbols and diamond accent. Handcrafted in Switzerland.",
-              "price": 2499.99,
-              "category": "accessories",
-              "image": "https://i.pinimg.com/1200x/ec/30/08/ec3008cf86f059318aebce7e843b74ba.jpg",
-              "rating": 4.8,
-              "reviews": 23,
-              "inStock": true,
-              "images": [
-                "https://i.pinimg.com/1200x/ec/30/08/ec3008cf86f059318aebce7e843b74ba.jpg",
-                "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=600&fit=crop",
-                "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=600&h=600&fit=crop",
-                "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=600&fit=crop"
-              ],
-              "quantity": 1
-            }
-          ],
-          "totalAmount": 2504.99,
-          "paymentMethod": "cod",
-          "shippingDetails": {
-            "fullName": "hdbshd",
-            "email": "auto@gmail.com",
-            "address": "hfgdhgf",
-            "city": "shgdshg",
-            "postalCode": "142134",
-            "paymentMethod": "cod"
-          },
-          "status": "Processing",
-          "date": "07/10/2025, 12:12:33"
-        },
-        {
-          "id": 1759820315480,
-          "items": [
-            {
-              "id": 2,
               "name": "Japanese Samurai Shirt",
               "description": "Premium cotton shirt with traditional Japanese samurai design, imported from Japan",
               "price": 29.99,
               "category": "clothing",
               "image": "https://i.pinimg.com/736x/cf/1b/75/cf1b759f6938b30bc081dfb5ed7affa6.jpg",
-              "rating": 4.6,
+              "rating": 3.6,
               "reviews": 89,
               "inStock": true,
-              "quantity": 1
-            },
-            {
-              "id": 1,
-              "name": "Premium Gi - Black Edition",
-              "description": "Professional grade karate uniform made from premium cotton canvas with reinforced stitching",
-              "price": 89.99,
-              "category": "uniforms",
-              "image": "https://i.pinimg.com/736x/2f/0d/c9/2f0dc90a2876dcfa305861d4177a3880.jpg",
-              "rating": 4.8,
-              "reviews": 124,
-              "inStock": true,
+              "id": "2",
               "quantity": 1
             }
           ],
-          "totalAmount": 124.97999999999999,
+          "totalAmount": 34.989999999999995,
           "paymentMethod": "cod",
           "shippingDetails": {
             "fullName": "hdbshd",
-            "email": "auto@gmail.com",
-            "address": "dsdfdf",
-            "city": "ertyu",
-            "postalCode": "12345",
+            "email": "shinas@gmail.com",
+            "address": "dhgehfjf",
+            "city": "jwtfdwh",
+            "postalCode": "87654",
             "paymentMethod": "cod"
           },
-          "status": "Processing",
-          "date": "07/10/2025, 12:28:35"
+          "status": "Cancelled",
+          "date": "10/10/2025, 23:31:07"
+        },
+        {
+          "id": 1760335659070,
+          "items": [
+            {
+              "name": "Japanese Samurai Shirt",
+              "description": "Premium cotton shirt with traditional Japanese samurai design, imported from Japan",
+              "price": 29.99,
+              "category": "clothing",
+              "image": "https://i.pinimg.com/736x/cf/1b/75/cf1b759f6938b30bc081dfb5ed7affa6.jpg",
+              "rating": 3.6,
+              "reviews": 89,
+              "inStock": true,
+              "id": "2",
+              "quantity": 1
+            }
+          ],
+          "totalAmount": 34.989999999999995,
+          "paymentMethod": "cod",
+          "shippingDetails": {
+            "fullName": "wertyu",
+            "email": "shinas@gmail.com",
+            "address": "sgshdhd",
+            "city": "wertyu",
+            "postalCode": "23456",
+            "paymentMethod": "cod"
+          },
+          "status": "Cancelled",
+          "date": "13/10/2025, 11:37:39"
         }
       ]
     },
     {
-      "id": "3499",
-      "username": "abc",
-      "email": "abc@gmail.com",
-      "password": "mnbvcxz",
+      "id": "bf4d",
+      "name": "sinan",
+      "email": "sinan@gmail.com",
+      "phone": "1234567890",
+      "membership": "VIP",
+      "status": "active",
+      "joinDate": "2025-10-10",
+      "avatar": "https://ui-avatars.com/api/?name=sinan&background=random"
+    },
+    {
+      "id": "ba52",
+      "username": "sidru",
+      "email": "sidra@gmail.com",
+      "password": "zxcvbnm",
       "cart": [],
       "wishlist": [],
       "isLoggedIn": false,
-      "isBlock": false
-    },
-    {
-      "id": "ac8c",
-      "username": "sinz",
-      "email": "sinz@gmail.com",
-      "password": "12345678",
-      "cart": [],
-      "wishlist": [],
-      "isLoggedIn": true,
-      "isBlock": false
+      "role": "user",
+      "isBlock": false,
+      "orders": [
+        {
+          "id": 1760168618568,
+          "items": [
+            {
+              "name": "Japanese Samurai Shirt",
+              "description": "Premium cotton shirt with traditional Japanese samurai design, imported from Japan",
+              "price": 29.99,
+              "category": "clothing",
+              "image": "https://i.pinimg.com/736x/cf/1b/75/cf1b759f6938b30bc081dfb5ed7affa6.jpg",
+              "rating": 3.6,
+              "reviews": 89,
+              "inStock": true,
+              "id": "2",
+              "quantity": 1
+            }
+          ],
+          "totalAmount": 34.989999999999995,
+          "paymentMethod": "cod",
+          "shippingDetails": {
+            "fullName": "dsdjdhsd",
+            "email": "sidra@gmail.com",
+            "address": "hfgdhgf",
+            "city": "sfsfsdfdf",
+            "postalCode": "87654",
+            "paymentMethod": "cod"
+          },
+          "status": "Delivered",
+          "date": "11/10/2025, 13:13:38",
+          "trackingNumber": "123456789",
+          "shippedDate": "12/10/2025",
+          "userId": "ba52",
+          "userEmail": "sidra@gmail.com",
+          "userName": "sidru"
+        }
+      ]
     }
   ],
   "products": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Premium Gi - Black Edition",
       "description": "Professional grade karate uniform made from premium cotton canvas with reinforced stitching",
       "price": 89.99,
@@ -418,18 +142,18 @@
       "inStock": true
     },
     {
-      "id": 2,
       "name": "Japanese Samurai Shirt",
       "description": "Premium cotton shirt with traditional Japanese samurai design, imported from Japan",
       "price": 29.99,
       "category": "clothing",
       "image": "https://i.pinimg.com/736x/cf/1b/75/cf1b759f6938b30bc081dfb5ed7affa6.jpg",
-      "rating": 4.6,
+      "rating": 3.6,
       "reviews": 89,
-      "inStock": true
+      "inStock": true,
+      "id": "2"
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "Kenji Pro Fitness Tracker",
       "description": "Advanced fitness tracker with heart rate monitor, GPS, and martial arts specific activity tracking",
       "price": 149.99,
@@ -440,7 +164,7 @@
       "inStock": true
     },
     {
-      "id": 4,
+      "id": "4",
       "name": "Korean Taekwondo Dobok",
       "description": "Authentic Korean Taekwondo uniform with V-neck design, imported directly from Seoul",
       "price": 79.99,
@@ -451,7 +175,7 @@
       "inStock": true
     },
     {
-      "id": 5,
+      "id": "5",
       "name": "imported marcozo chain",
       "description": "High-quality wireless earbuds with noise cancellation for focused training sessions",
       "price": 99.99,
@@ -462,7 +186,7 @@
       "inStock": true
     },
     {
-      "id": 6,
+      "id": "6",
       "name": "Chinese Kung Fu Uniform",
       "description": "Traditional Chinese Kung Fu uniform with silk-like finish, imported from Beijing",
       "price": 69.99,
@@ -473,7 +197,7 @@
       "inStock": true
     },
     {
-      "id": 7,
+      "id": "7",
       "name": "Martial Arts Combo Set",
       "description": "Comfortable cotton combo with martial arts inspired design, perfect for casual wear",
       "price": 49.99,
@@ -484,7 +208,7 @@
       "inStock": true
     },
     {
-      "id": 8,
+      "id": "8",
       "name": "Rapporse Smart Watch",
       "description": "Hydration tracking smart watch with analog display and heart rate monitor",
       "price": 39.99,
@@ -495,7 +219,7 @@
       "inStock": true
     },
     {
-      "id": 9,
+      "id": "9",
       "name": "Brazilian Jiu-Jitsu Gi",
       "description": "Competition-ready BJJ gi with reinforced stitching and pearl weave fabric",
       "price": 129.99,
@@ -506,7 +230,7 @@
       "inStock": true
     },
     {
-      "id": 10,
+      "id": "10",
       "name": "Denim Martial Arts Pants",
       "description": "Flexible and comfortable suit pants with moisture-wicking technology",
       "price": 44.99,
@@ -517,7 +241,7 @@
       "inStock": true
     },
     {
-      "id": 11,
+      "id": "11",
       "name": "Premium Chain Cross",
       "description": "High-capacity chain with clips for all your type of jeans imported from china",
       "price": 34.99,
@@ -528,7 +252,7 @@
       "inStock": true
     },
     {
-      "id": 12,
+      "id": "12",
       "name": "MMA Training Shirts",
       "description": "Professional MMA shirts with single design and secure velcro closure",
       "price": 39.99,
@@ -539,7 +263,7 @@
       "inStock": true
     },
     {
-      "id": 13,
+      "id": "13",
       "name": "Koduvally 4K Action Camera",
       "description": "4K waterproof action camera for recording your martial arts training and its imported from china",
       "price": 199.99,
@@ -550,7 +274,7 @@
       "inStock": true
     },
     {
-      "id": 14,
+      "id": "14",
       "name": "Training Jacket Top",
       "description": "Breathable jacket top with quick-dry fabric for intense workout sessions",
       "price": 24.99,
@@ -561,7 +285,7 @@
       "inStock": true
     },
     {
-      "id": 15,
+      "id": "15",
       "name": "Japanese Molded Ring",
       "description": "High-quality and imported ring for mens and used in martial arts",
       "price": 29.99,
@@ -572,7 +296,7 @@
       "inStock": true
     },
     {
-      "id": 16,
+      "id": "16",
       "name": "Judogi White Striped Shirts",
       "description": "Traditional Japanese Judo uniform with heavy cotton fabric for durability",
       "price": 89.99,
@@ -583,7 +307,7 @@
       "inStock": true
     },
     {
-      "id": 17,
+      "id": "17",
       "name": "Shogun Elite Katana",
       "description": "Hand-forged Japanese katana with 1095 high-carbon steel, genuine ray skin handle, and gold accents. Imported from Kyoto.",
       "price": 899.99,
@@ -594,7 +318,7 @@
       "inStock": true
     },
     {
-      "id": 18,
+      "id": "18",
       "name": "Quantum Percussion Massager",
       "description": "Professional deep tissue massage gun with 6 attachments and smart chip technology. Designed in Germany.",
       "price": 299.99,
@@ -605,7 +329,7 @@
       "inStock": true
     },
     {
-      "id": 19,
+      "id": "19",
       "name": "Imperial Silk Kung Fu Uniform",
       "description": "Luxury silk-blend uniform with hand-embroidered dragon motifs and 24k gold thread detailing. Made in Shanghai.",
       "price": 449.99,
@@ -616,7 +340,7 @@
       "inStock": true
     },
     {
-      "id": 20,
+      "id": "20",
       "name": "Titanium Training Nunchaku",
       "description": "Aerospace-grade titanium nunchaku with ball bearing swivels and carbon fiber chain. Limited edition.",
       "price": 399.99,
@@ -627,7 +351,7 @@
       "inStock": true
     },
     {
-      "id": 21,
+      "id": "21",
       "name": "Zen Meditation Fountain",
       "description": "Smart water fountain with LED lighting and Bluetooth connectivity for creating perfect meditation ambiance. Imported from Japan.",
       "price": 599.99,
@@ -638,7 +362,7 @@
       "inStock": true
     },
     {
-      "id": 22,
+      "id": "22",
       "name": "Carbon Fiber Bo Staff",
       "description": "Professional-grade carbon fiber bo staff with titanium end caps and adjustable weight system.",
       "price": 349.99,
@@ -649,7 +373,7 @@
       "inStock": true
     },
     {
-      "id": 23,
+      "id": "23",
       "name": "Samurai Leather Jacket",
       "description": "Premium lambskin leather jacket with traditional Japanese embroidery and modern cut. Handcrafted in Italy.",
       "price": 1299.99,
@@ -660,7 +384,7 @@
       "inStock": true
     },
     {
-      "id": 24,
+      "id": "24",
       "name": "Dragon Scale Gloves",
       "description": "Training gloves with carbon fiber knuckle protection and dragon scale design. Imported from South Korea.",
       "price": 199.99,
@@ -671,7 +395,7 @@
       "inStock": true
     },
     {
-      "id": 25,
+      "id": "25",
       "name": "Smart Training Dummy",
       "description": "AI-powered training dummy with pressure sensors and Bluetooth feedback to your smartphone. Made in USA.",
       "price": 799.99,
@@ -682,7 +406,7 @@
       "inStock": true
     },
     {
-      "id": 26,
+      "id": "26",
       "name": "Platinum Signet Ring",
       "description": "Solid platinum ring with ancient martial arts symbols and diamond accent. Handcrafted in Switzerland.",
       "price": 2499.99,
@@ -693,7 +417,7 @@
       "inStock": true
     },
     {
-      "id": 27,
+      "id": "27",
       "name": "Night Vision Training Glasses",
       "description": "Smart glasses with night vision, heart rate monitoring, and training metrics display. German engineering.",
       "price": 899.99,
@@ -704,7 +428,7 @@
       "inStock": true
     },
     {
-      "id": 28,
+      "id": "28",
       "name": "Limited Edition Gi Collection",
       "description": "24k gold thread embroidered gi set with matching belt and certificate of authenticity. Only 100 pieces worldwide.",
       "price": 1999.99,

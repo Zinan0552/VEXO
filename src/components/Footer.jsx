@@ -10,7 +10,7 @@ export default function Footer() {
           {/* Left Logo & About */}
           <div className="space-y-4">
             <h1 className="text-3xl font-bold tracking-wider">
-              XTREMEX
+              VEXO ICONIC
             </h1>
             <p className="text-sm leading-relaxed text-gray-400">
               Luxury-grade craftsmanship, and relentless edge into every piece 

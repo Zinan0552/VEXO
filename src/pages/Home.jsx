@@ -13,6 +13,7 @@ import {
   TrendingUp, 
   MessageCircle 
 } from 'lucide-react';
+import Shop from './Shop';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,12 +26,12 @@ const Home = () => {
       subtitle: "Discover timeless pieces for the modern lifestyle"
     },
     {
-      image: "https://i.pinimg.com/736x/16/1c/e4/161ce4a39900d4ee2d8de29a2933f27f.jpg",
+      image: "https://i.pinimg.com/1200x/43/dc/aa/43dcaaece07b90579fa0d5715940f184.jpg",
       title: "Quality in Simplicity",
       subtitle: "Where every detail matters"
     },
     {
-      image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1200&h=800&fit=crop",
+      image: "https://i.pinimg.com/1200x/68/b8/95/68b895adf7028a55223cc4c98ea18765.jpg",
       title: "Modern Living",
       subtitle: "Curated collections for contemporary spaces"
     },
@@ -302,7 +303,7 @@ const Home = () => {
                           <div className="text-sm text-gray-200 mb-1">Starting from</div>
                           <div className="text-2xl font-bold">${collection.startingPrice}</div>
                         </div>
-                        <button className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded-2xl font-semibold text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-2">
+                        <button onClick={() => navigate('/shop')} className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded-2xl font-semibold text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-2">
                           <span>Explore</span>
                           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                         </button>
@@ -515,12 +516,9 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => navigate('/shop')}
-              className="bg-gray-900 hover:bg-black text-white px-12 py-4 font-medium text-lg transition-all duration-300 hover:scale-105"
-            >
+              className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-12 py-4 font-medium text-lg transition-all duration-300 hover:scale-105">
+            
               Start Shopping
-            </button>
-            <button className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-12 py-4 font-medium text-lg transition-all duration-300 hover:scale-105">
-              Book Consultation
             </button>
           </div>
         </div>
@@ -530,7 +528,7 @@ const Home = () => {
       <footer className="bg-white border-t border-gray-200 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <h3 className="text-2xl font-light text-gray-900 mb-4">Essence</h3>
+            <h3 className="text-2xl font-light text-gray-900 mb-4">VEXO ICONIC</h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
               Minimalist design, maximum impact. Curated collections for modern living.
             </p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { 
@@ -18,6 +18,7 @@ import {
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, addToCart, addToWishlist, isInWishlist, isAuthenticated } = useAuth();
   
   const [product, setProduct] = useState(null);
@@ -26,32 +27,46 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState('description');
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch('/db.json');
-        const data = await response.json();
-        const foundProduct = data.products.find(p => p.id === parseInt(id));
-        
-        if (foundProduct) {
-          setProduct(foundProduct);
-        } else {
-          toast.error('Product not found!');
-          navigate('/shop');
+    // First try to get product from navigation state
+    const productFromState = location.state?.product;
+    
+    if (productFromState) {
+      setProduct(productFromState);
+      setLoading(false);
+    } else {
+      // If not in state, fetch from db.json
+      const fetchProduct = async () => {
+        try {
+          const response = await fetch('/db.json');
+          const data = await response.json();
+          const foundProduct = data.products.find(p => p.id === parseInt(id));
+          
+          if (foundProduct) {
+            setProduct(foundProduct);
+          } else {
+            toast.error('Product not found!');
+            navigate('/shop');
+          }
+        } catch (error) {
+          console.error('Error fetching product:', error);
+          toast.error('Failed to load product details!');
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        toast.error('Failed to load product details!');
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchProduct();
-  }, [id, navigate]);
+      fetchProduct();
+    }
+  }, [id, navigate, location.state]);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       toast.warning('Please login to add items to cart!');
+      return;
+    }
+
+    if (!product) {
+      toast.error('Product information is not available!');
       return;
     }
 
@@ -70,6 +85,11 @@ const ProductDetail = () => {
   const handleAddToWishlist = async () => {
     if (!isAuthenticated) {
       toast.warning('Please login to add items to wishlist!');
+      return;
+    }
+
+    if (!product) {
+      toast.error('Product information is not available!');
       return;
     }
 
@@ -118,18 +138,7 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-6 py-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Products
-          </button>
-        </div>
-      </div>
+     
 
       {/* Product Details - Simplified Layout */}
       <div className="container mx-auto px-6 py-8">
