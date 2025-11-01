@@ -6,7 +6,8 @@ import {
   ShoppingCart, 
   BarChart3,
   LogOut,
-  X
+  X,
+  MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +22,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSidebar
     { id: 'products', label: 'Product Management', icon: <Package className="w-5 h-5" /> },
     { id: 'orders', label: 'Order Management', icon: <ShoppingCart className="w-5 h-5" /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-5 h-5" /> },
+    { id: 'messages', label: 'Contact Messages', icon: <MessageCircle className="w-5 h-5" /> },
   ];
 
   const handleLogout = () => {

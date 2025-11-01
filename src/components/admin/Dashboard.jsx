@@ -428,12 +428,7 @@ const Dashboard = () => {
                 <Download className="w-4 h-4" />
                 <span>Export</span>
               </button>
-              <button 
-                onClick={() => navigate(<OrderManagement />)}
-                className="text-sm text-red-600 hover:text-red-700 font-medium px-3 py-1 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
-              >
-                View All
-              </button>
+             
             </div>
           </div>
           
@@ -481,12 +476,6 @@ const Dashboard = () => {
               <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
               Top Selling Products
             </h2>
-            <button 
-              onClick={() => navigate(<ProductManagement />)}
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
-            >
-              View All
-            </button>
           </div>
           <div className="space-y-3">
             {topProducts.map((product, index) => (

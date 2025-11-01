@@ -98,7 +98,6 @@ const OrderManagement = () => {
   };
 
   // Navigation functions
-  const navigateToDashboard = () => navigate('/admin');
   const navigateToCustomerProfile = (userId) => navigate(`/admin/users/${userId}`);
 
   const handleRefreshOrders = async () => {
@@ -320,13 +319,7 @@ const OrderManagement = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div className="flex items-center gap-4">
-          <button
-            onClick={navigateToDashboard}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Dashboard
-          </button>
+          
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Order Management</h1>
             <p className="text-gray-600 mt-2">Manage and track all customer orders</p>

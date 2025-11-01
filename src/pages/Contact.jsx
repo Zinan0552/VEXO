@@ -1,7 +1,73 @@
-import React from "react";
-import { Mail, Phone, MapPin } from "lucide-react";
+import React, { useState } from "react";
+import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const contactMessage = {
+        ...formData,
+        id: Date.now(), // Simple ID generation
+        createdAt: new Date().toISOString(),
+        status: "unread", // unread, read, replied
+        isArchived: false
+      };
+
+      console.log("Sending message:", contactMessage);
+
+      const response = await fetch("http://localhost:5001/contactMessages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(contactMessage),
+      });
+
+      if (response.ok) {
+        const createdMessage = await response.json();
+        console.log("Message created:", createdMessage);
+        toast.success("Message sent successfully! We'll get back to you soon.");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      if (error.message.includes("Failed to fetch")) {
+        toast.error("Cannot connect to server. Please try again later.");
+      } else {
+        toast.error("Failed to send message. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-16">
       {/* Header Section */}
@@ -22,42 +88,67 @@ export default function Contact() {
           <h2 className="text-2xl font-bold mb-6 text-red-500">
             Send us a message
           </h2>
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
-                Name
+                Name *
               </label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Your full name"
                 className="w-full rounded-md bg-black border border-zinc-700 focus:border-red-500 text-white p-3 outline-none"
+                required
+                minLength={2}
               />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
-                Email
+                Email *
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="you@example.com"
                 className="w-full rounded-md bg-black border border-zinc-700 focus:border-red-500 text-white p-3 outline-none"
+                required
               />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
-                Message
+                Message *
               </label>
               <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 placeholder="Write your message here..."
                 rows="4"
                 className="w-full rounded-md bg-black border border-zinc-700 focus:border-red-500 text-white p-3 outline-none"
+                required
+                minLength={10}
               ></textarea>
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-md transition duration-300"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center justify-center gap-2"
             >
-              Send Message
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Send Message
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -93,7 +184,7 @@ export default function Contact() {
             </li>
           </ul>
 
-          {/* Map (optional) */}
+          {/* Map */}
           <div className="mt-8 rounded-xl overflow-hidden border border-zinc-800">
             <iframe
               title="Google Map"

@@ -9,6 +9,7 @@ import UserManagement from '../../components/admin/UserManagement';
 import ProductManagement from '../../components/admin/ProductManagement';
 import OrderManagement from '../../components/admin/OrderManagement';
 import Analytics from '../../components/admin/Analytics';
+import ContactManagement from '../../components/admin/ContactManagement';
 import { ToastContainer } from 'react-toastify';
 
 const Admino = () => {
@@ -47,6 +48,8 @@ const Admino = () => {
         return <OrderManagement />;
       case 'analytics':
         return <Analytics />;
+      case 'messages':
+        return <ContactManagement />;
       default:
         return <Dashboard />;
     }

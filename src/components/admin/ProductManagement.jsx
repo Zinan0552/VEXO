@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Search, Plus, Edit, Trash2, X, Save, Star, ShoppingBag, TrendingUp } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, X, Save, Star, ShoppingBag, TrendingUp, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../LoadingSpinner';
@@ -13,6 +13,9 @@ const ProductManagement = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [errors, setErrors] = useState({});
+  const [showDelete, setShowDelete] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -175,16 +178,32 @@ const ProductManagement = () => {
     }
   };
 
-  const deleteProduct = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await axios.delete(`http://localhost:5001/products/${productId}`);
-        setProducts(prev => prev.filter(p => p.id !== productId));
-        toast.success('🗑️ Product deleted successfully!');
-      } catch (err) {
-        console.error("Error deleting product:", err);
-        toast.error('❌ Error deleting product');
-      }
+  // Delete Product Functions
+  const openDeleteModal = (product) => {
+    setProductToDelete(product);
+    setShowDelete(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDelete(false);
+    setProductToDelete(null);
+    setDeleting(false);
+  };
+
+  const deleteProduct = async () => {
+    if (!productToDelete) return;
+
+    setDeleting(true);
+    try {
+      await axios.delete(`http://localhost:5001/products/${productToDelete.id}`);
+      setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
+      toast.success('🗑️ Product deleted successfully!');
+      closeDeleteModal();
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      toast.error('❌ Error deleting product');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -306,7 +325,7 @@ const ProductManagement = () => {
               <Edit className="w-4 h-4" />
             </button>
             <button 
-              onClick={() => deleteProduct(product.id)}
+              onClick={() => openDeleteModal(product)}
               className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 hover:scale-110 hover:shadow-lg hover:shadow-red-500/30"
               title="Delete Product"
             >
@@ -628,6 +647,74 @@ const ProductManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDelete && productToDelete && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 w-full max-w-md border border-red-500/20">
+            <div className="text-center">
+              {/* Warning Icon */}
+              <div className="mx-auto w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="w-8 h-8 text-red-400" />
+              </div>
+              
+              <h2 className="text-2xl font-bold text-white mb-2">Delete Product</h2>
+              <p className="text-gray-400 mb-6">
+                Are you sure you want to delete this product? This action cannot be undone.
+              </p>
+
+              {/* Product Info */}
+              <div className="bg-gray-700/50 rounded-xl p-4 mb-6 border border-gray-600">
+                <div className="flex items-center gap-3 mb-3">
+                  <img 
+                    src={productToDelete.image} 
+                    alt={productToDelete.name}
+                    className="w-12 h-12 object-cover rounded-lg"
+                  />
+                  <div className="text-left">
+                    <h3 className="text-white font-semibold line-clamp-1">{productToDelete.name}</h3>
+                    <p className="text-gray-400 text-sm">{productToDelete.category}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-gray-400">Price:</div>
+                  <div className="text-white font-semibold">${productToDelete.price}</div>
+                  <div className="text-gray-400">Rating:</div>
+                  <div className="text-white font-semibold">{productToDelete.rating} ⭐</div>
+                </div>
+              </div>
+
+              {/* delete modal */}
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={closeDeleteModal}
+                  disabled={deleting}
+                  className="px-6 py-3 border border-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium flex-1 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={deleteProduct}
+                  disabled={deleting}
+                  className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center gap-2 flex-1 disabled:opacity-50 font-medium"
+                >
+                  {deleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Delete Product
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
