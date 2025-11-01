@@ -44,7 +44,7 @@ export default function Register() {
 
     try {
       // Check if user already exists
-      const checkRes = await fetch(`http://localhost:5001/users?email=${email}`);
+      const checkRes = await fetch(`http://localhost:3000/users?email=${email}`);
       const existingUsers = await checkRes.json();
 
       if (existingUsers.length > 0) {
@@ -54,7 +54,7 @@ export default function Register() {
       }
 
       // ✅ Send POST request to JSON server
-      const res = await fetch("http://localhost:5001/users", {
+      const res = await fetch("http://localhost:3000/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser),

@@ -1,125 +1,5 @@
-// import React, { useState ,useEffect} from 'react';
-// import { Search, Edit, Trash2, Mail } from 'lucide-react';
-
-// const UserManagement = () => {
-//  useEffect(() => {
-//     fetchUsers();
-//   }, []);
-
-//   const fetchUsers = async () => {
-//     try {
-//       setFetchLoading(true);
-//       const response = await fetch('http://localhost:5001/users');
-//       const data = await response.json();
-//       setUsers(data);
-//     } catch (error) {
-//       console.error('Error fetching users:', error);
-//       toast.error('Failed to load users. Please try again later.');
-//     } finally {
-//       setFetchLoading(false);
-//     }
-//   };
-
-
-
-//   const [searchTerm, setSearchTerm] = useState('');
-
-//   const filteredUsers = users.filter(user =>
-//     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//     user.email.toLowerCase().includes(searchTerm.toLowerCase())
-//   );
-
-//   return (
-//     <div className="space-y-6">
-//       <div className="flex justify-between items-center">
-//         <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
-//         <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-//           Add New User
-//         </button>
-//       </div>
-
-//       {/* Search */}
-//       <div className="bg-white rounded-lg shadow-md p-6">
-//         <div className="relative">
-//           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-//           <input
-//             type="text"
-//             placeholder="Search users..."
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-//           />
-//         </div>
-//       </div>
-
-//       {/* Users Grid */}
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//         {filteredUsers.map((user) => (
-//           <div key={user.id} className="bg-white rounded-lg shadow-md p-6">
-//             <div className="flex items-center space-x-4 mb-4">
-//               <img
-//                 className="h-12 w-12 rounded-full object-cover"
-//                 src={user.avatar}
-//                 alt={user.name}
-//               />
-//               <div>
-//                 <h3 className="font-semibold text-gray-900">{user.name}</h3>
-//                 <p className="text-sm text-gray-600">{user.email}</p>
-//               </div>
-//             </div>
-            
-//             <div className="space-y-2 text-sm">
-//               <div className="flex justify-between">
-//                 <span className="text-gray-600">Phone:</span>
-//                 <span className="font-medium">{user.phone}</span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-gray-600">Membership:</span>
-//                 <span className={`font-medium ${
-//                   user.membership === 'Premium' ? 'text-purple-600' : 'text-blue-600'
-//                 }`}>
-//                   {user.membership}
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-gray-600">Status:</span>
-//                 <span className={`font-medium ${
-//                   user.status === 'active' ? 'text-green-600' : 'text-red-600'
-//                 }`}>
-//                   {user.status}
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-gray-600">Joined:</span>
-//                 <span className="font-medium">{user.joinDate}</span>
-//               </div>
-//             </div>
-
-//             <div className="flex gap-2 mt-4">
-//               <button className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-1">
-//                 <Edit className="w-4 h-4" />
-//                 Edit
-//               </button>
-//               <button className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors flex items-center justify-center gap-1">
-//                 <Mail className="w-4 h-4" />
-//                 Email
-//               </button>
-//               <button className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors flex items-center justify-center gap-1">
-//                 <Trash2 className="w-4 h-4" />
-//                 Delete
-//               </button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UserManagement;
-
 import React, { useState, useEffect } from 'react';
-import { Edit, Trash2, Mail, Plus, User, Phone, Calendar, Crown, Shield, Star, X, Save } from 'lucide-react';
+import { Edit, Trash2, Mail, Plus, User, Phone, Calendar, Crown, Shield, Star, X, Save, AlertTriangle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const UserManagement = () => {
@@ -128,6 +8,9 @@ const UserManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [newUser, setNewUser] = useState({
     username: '',
@@ -147,7 +30,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setFetchLoading(true);
-      const response = await fetch('http://localhost:5001/users');
+      const response = await fetch('http://localhost:3000/users');
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -173,7 +56,7 @@ const UserManagement = () => {
         avatar: newUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newUser.username)}&background=random`
       };
 
-      const response = await fetch('http://localhost:5001/users', {
+      const response = await fetch('http://localhost:3000/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -225,7 +108,7 @@ const UserManagement = () => {
         avatar: newUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newUser.username)}&background=random`
       };
 
-      const response = await fetch(`http://localhost:5001/users/${editingUser.id}`, {
+      const response = await fetch(`http://localhost:3000/users/${editingUser.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -247,20 +130,41 @@ const UserManagement = () => {
     }
   };
 
+  // Open Delete Confirmation Modal
+  const openDeleteModal = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  // Close Delete Modal
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setUserToDelete(null);
+    setDeleting(false);
+  };
+
   // Delete User Function
-  const deleteUser = async (user) => {
-    if (window.confirm(`Are you sure you want to delete ${user.username || user.name}?`)) {
-      try {
-        await fetch(`http://localhost:5001/users/${user.id}`, {
-          method: 'DELETE',
-        });
-        
-        setUsers(prev => prev.filter(u => u.id !== user.id));
+  const deleteUser = async () => {
+    if (!userToDelete) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`http://localhost:3000/users/${userToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setUsers(prev => prev.filter(u => u.id !== userToDelete.id));
         toast.success('🗑️ User deleted successfully!');
-      } catch (err) {
-        console.error("Error deleting user:", err);
-        toast.error('❌ Error deleting user');
+        closeDeleteModal();
+      } else {
+        throw new Error('Failed to delete user');
       }
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      toast.error('❌ Error deleting user');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -319,6 +223,120 @@ const UserManagement = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Delete Confirmation Modal Component
+  const DeleteConfirmationModal = () => {
+    if (!showDeleteModal || !userToDelete) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 w-full max-w-md border border-red-500/30">
+          {/* Modal Header */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-red-500/20 rounded-xl">
+              <AlertTriangle className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">Delete User</h3>
+              <p className="text-gray-400 text-sm">This action cannot be undone</p>
+            </div>
+          </div>
+
+          {/* Warning Message */}
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
+            <p className="text-red-300 text-sm">
+              <strong>Warning:</strong> You are about to permanently delete the user 
+              <span className="font-bold text-white"> {userToDelete.username || userToDelete.name}</span>. 
+              This will remove all their data including orders, reviews, and preferences.
+            </p>
+          </div>
+
+          {/* User Details */}
+          <div className="bg-gray-700/50 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-3 mb-3">
+              <img
+                className="h-10 w-10 rounded-full object-cover border-2 border-gray-600"
+                src={userToDelete.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userToDelete.username || userToDelete.name)}&background=random`}
+                alt={userToDelete.username || userToDelete.name}
+              />
+              <div>
+                <h4 className="font-semibold text-white">{userToDelete.username || userToDelete.name}</h4>
+                <p className="text-gray-400 text-sm">{userToDelete.email}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <span className="text-gray-400">Membership:</span>
+                <span className={`ml-2 font-medium ${
+                  userToDelete.membership === 'Premium' ? 'text-purple-400' : 
+                  userToDelete.membership === 'VIP' ? 'text-yellow-400' : 'text-blue-400'
+                }`}>
+                  {userToDelete.membership}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-400">Status:</span>
+                <span className={`ml-2 font-medium ${
+                  userToDelete.status === 'active' ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {userToDelete.status?.charAt(0).toUpperCase() + userToDelete.status?.slice(1)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Confirmation Input */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-white mb-2">
+              Type <span className="font-mono text-red-400">DELETE</span> to confirm
+            </label>
+            <input
+              type="text"
+              id="deleteConfirmation"
+              placeholder="Type DELETE here"
+              className="w-full bg-gray-700 border border-gray-600 px-4 py-3 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-white placeholder-gray-400"
+              onChange={(e) => {
+                // Enable delete button only when user types "DELETE"
+                const deleteBtn = document.getElementById('deleteBtn');
+                if (deleteBtn) {
+                  deleteBtn.disabled = e.target.value !== 'DELETE';
+                }
+              }}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={closeDeleteModal}
+              disabled={deleting}
+              className="flex-1 px-4 py-3 border border-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              id="deleteBtn"
+              onClick={deleteUser}
+              disabled={deleting}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 font-medium"
+            >
+              {deleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Delete User
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Loading Skeleton Component
@@ -453,7 +471,7 @@ const UserManagement = () => {
           <span className="text-sm font-medium">Email</span>
         </button>
         <button 
-          onClick={() => deleteUser(user)}
+          onClick={() => openDeleteModal(user)}
           className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-red-500/30 flex items-center justify-center gap-2 group/btn"
         >
           <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
@@ -564,6 +582,7 @@ const UserManagement = () => {
             </div>
 
             <form onSubmit={editingUser ? updateUser : addUser} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
               {/* Username */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-white mb-2">Username *</label>
@@ -690,6 +709,9 @@ const UserManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal />
 
       {/* Users Grid */}
       <div>

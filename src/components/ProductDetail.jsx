@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +14,8 @@ import {
   RotateCcw,
   Check,
   Plus,
-  Minus
+  Minus,
+  Zap
 } from 'lucide-react';
 
 const ProductDetail = () => {
@@ -79,6 +82,36 @@ const ProductDetail = () => {
     } catch (err) {
       console.error(err);
       toast.error(err.message || 'Failed to add item to cart!');
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      toast.warning('Please login to proceed with purchase!');
+      return;
+    }
+
+    if (!product) {
+      toast.error('Product information is not available!');
+      return;
+    }
+
+    try {
+      // Add the product to cart first
+      for (let i = 0; i < quantity; i++) {
+        await addToCart(product);
+      }
+      
+      toast.success(`${quantity} ${product.name} added to cart! Redirecting to checkout...`);
+      
+      // Navigate to checkout page after a short delay
+      setTimeout(() => {
+        navigate('/checkout');
+      }, 1500);
+      
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Failed to process order!');
     }
   };
 
@@ -243,17 +276,29 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex space-x-4">
+                {/* Action Buttons - Updated with Buy Now */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Buy Now Button - Primary Action */}
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={!product.inStock}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40"
+                  >
+                    <Zap className="w-6 h-6 mr-3" />
+                    Buy Now
+                  </button>
+                  
+                  {/* Add to Cart Button - Secondary Action */}
                   <button
                     onClick={handleAddToCart}
                     disabled={!product.inStock}
-                    className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center shadow-lg"
                   >
                     <ShoppingCart className="w-6 h-6 mr-3" />
                     Add to Cart
                   </button>
                   
+                  {/* Wishlist Button */}
                   <button
                     onClick={handleAddToWishlist}
                     className="w-16 h-16 border-2 border-gray-300 rounded-xl flex items-center justify-center hover:border-red-600 hover:text-red-600 transition-all duration-300 transform hover:scale-105"
@@ -264,6 +309,12 @@ const ProductDetail = () => {
                       }`} 
                     />
                   </button>
+                </div>
+
+                {/* Quick Actions Info */}
+                <div className="text-center text-sm text-gray-600 space-y-1">
+                  <p>🛒 <strong>Add to Cart</strong> - Save for later purchase</p>
+                  <p>⚡ <strong>Buy Now</strong> - Proceed directly to checkout</p>
                 </div>
 
                 {/* Features */}

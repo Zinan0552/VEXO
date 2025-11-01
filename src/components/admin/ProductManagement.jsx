@@ -35,7 +35,7 @@ const ProductManagement = () => {
   const fetchProducts = async () => {
     try {
       setFetchLoading(true);
-      const response = await fetch('http://localhost:5001/products');
+      const response = await fetch('http://localhost:3000/products');
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -117,7 +117,7 @@ const ProductManagement = () => {
         inStock: Boolean(newProduct.inStock)
       };
 
-      const response = await axios.post('http://localhost:5001/products', productToAdd);
+      const response = await axios.post('http://localhost:3000/products', productToAdd);
       setProducts(prev => [...prev, response.data]);
       setShowForm(false);
       resetForm();
@@ -164,7 +164,7 @@ const ProductManagement = () => {
         inStock: Boolean(newProduct.inStock)
       };
 
-      const response = await axios.put(`http://localhost:5001/products/${editingProduct.id}`, updatedProduct);
+      const response = await axios.put(`http://localhost:3000/products/${editingProduct.id}`, updatedProduct);
       setProducts(prev => prev.map(p => p.id === editingProduct.id ? response.data : p));
       setShowForm(false);
       setEditingProduct(null);
@@ -195,7 +195,7 @@ const ProductManagement = () => {
 
     setDeleting(true);
     try {
-      await axios.delete(`http://localhost:5001/products/${productToDelete.id}`);
+      await axios.delete(`http://localhost:3000/products/${productToDelete.id}`);
       setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
       toast.success('🗑️ Product deleted successfully!');
       closeDeleteModal();

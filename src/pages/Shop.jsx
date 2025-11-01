@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, Heart, Eye, Star, Zap, X, SlidersHorizontal, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -20,9 +19,12 @@ const Shop = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(8); // You can adjust this number
+  // Pagination state - Initialize from localStorage or default to 1
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('shopCurrentPage');
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  });
+  const [productsPerPage] = useState(8);
   
   const navigate = useNavigate();
 
@@ -33,6 +35,11 @@ const Shop = () => {
     isInWishlist,
     isAuthenticated,
   } = useAuth();
+
+  // Save current page to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('shopCurrentPage', currentPage.toString());
+  }, [currentPage]);
 
   // Get current products for the current page
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -70,10 +77,32 @@ const Shop = () => {
     applyFilters();
   }, [products, selectedCategory, priceRange, minRating, sortBy, inStockOnly, searchQuery]);
 
-  // Reset to first page when filters change
+  // Reset to first page when filters change (except search query for better UX)
   useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, priceRange, minRating, sortBy, inStockOnly, searchQuery]);
+    // Only reset to page 1 if it's a major filter change, not search
+    const isMajorFilterChange = selectedCategory !== "all" || 
+                               priceRange[0] > 0 || 
+                               priceRange[1] < Math.max(...products.map(p => p.price)) ||
+                               minRating > 0 || 
+                               sortBy !== "featured" || 
+                               inStockOnly;
+    
+    if (isMajorFilterChange) {
+      setCurrentPage(1);
+    }
+  }, [selectedCategory, priceRange, minRating, sortBy, inStockOnly]);
+
+  // Handle search query separately - don't reset page on search
+  useEffect(() => {
+    if (searchQuery !== "") {
+      // If searching and no results on current page, go to page 1
+      const searchResults = applySearchFilter(products, searchQuery);
+      const resultsOnCurrentPage = searchResults.slice(indexOfFirstProduct, indexOfLastProduct);
+      if (resultsOnCurrentPage.length === 0 && currentPage > 1) {
+        setCurrentPage(1);
+      }
+    }
+  }, [searchQuery]);
 
   const applyFilters = () => {
     let filtered = products.filter((product) => {
@@ -93,6 +122,17 @@ const Shop = () => {
     filtered = sortProducts(filtered, sortBy);
     
     setFilteredProducts(filtered);
+  };
+
+  // Separate search filter function
+  const applySearchFilter = (products, query) => {
+    if (query === "") return products;
+    
+    return products.filter(product => 
+      product.name.toLowerCase().includes(query.toLowerCase()) ||
+      product.description.toLowerCase().includes(query.toLowerCase()) ||
+      product.category.toLowerCase().includes(query.toLowerCase())
+    );
   };
 
   const sortProducts = (products, sortType) => {
@@ -143,11 +183,9 @@ const Shop = () => {
     }
   };
 
-  // Fixed Quick View function - Navigate to ProductDetails page
   const handleQuickView = (product) => {
-    // Navigate to product detail page with product data
     navigate(`/product/${product.id}`, { 
-      state: { product } // Pass the entire product object via navigation state
+      state: { product }
     });
   };
 
@@ -158,6 +196,7 @@ const Shop = () => {
     setSortBy("featured");
     setInStockOnly(false);
     setSearchQuery("");
+    setCurrentPage(1); // Reset to page 1 when clearing all filters
   };
 
   const getActiveFilterCount = () => {
@@ -186,34 +225,36 @@ const Shop = () => {
     }
   };
 
+  // Adjust current page if it exceeds total pages after filtering
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   // Generate page numbers to display
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5;
     
     if (totalPages <= maxPagesToShow) {
-      // Show all pages if total pages are less than maxPagesToShow
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Show limited pages with ellipsis
       if (currentPage <= 3) {
-        // Near the start
         for (let i = 1; i <= 4; i++) {
           pageNumbers.push(i);
         }
         pageNumbers.push('...');
         pageNumbers.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
-        // Near the end
         pageNumbers.push(1);
         pageNumbers.push('...');
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pageNumbers.push(i);
         }
       } else {
-        // In the middle
         pageNumbers.push(1);
         pageNumbers.push('...');
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
@@ -414,14 +455,12 @@ const Shop = () => {
                   onMouseEnter={() => setHoveredProduct(product.id)}
                   onMouseLeave={() => setHoveredProduct(null)}
                 >
-                  {/* Premium Background Effect */}
+                  {/* Product card content remains the same */}
                   <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-orange-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
-                  {/* Image Container with Shine Effect */}
                   <div className="relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
-                    {/* Shine Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-20"></div>
                     
                     <img 
@@ -430,14 +469,12 @@ const Shop = () => {
                       className="w-full h-80 object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
                     />
 
-                    {/* Premium Badges */}
                     <div className="absolute top-4 left-4 z-30">
                       <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                         HOT
                       </span>
                     </div>
 
-                    {/* Rating Badge */}
                     <div className="absolute top-4 right-4 z-30">
                       <div className="bg-black/80 backdrop-blur-sm text-white px-2 py-1 rounded-full flex items-center space-x-1 text-xs font-semibold">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -445,7 +482,6 @@ const Shop = () => {
                       </div>
                     </div>
 
-                    {/* Wishlist Button - Enhanced */}
                     <button
                       onClick={() => handleAddToWishlist(product)}
                       className={`absolute top-16 right-4 z-30 p-3 rounded-2xl backdrop-blur-sm border transition-all duration-300 transform hover:scale-110 ${
@@ -461,7 +497,6 @@ const Shop = () => {
                       />
                     </button>
 
-                    {/* Quick View Button - Fixed to navigate to ProductDetails */}
                     <button
                       onClick={() => handleQuickView(product)}
                       className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 bg-white/90 backdrop-blur-sm text-gray-900 px-6 py-3 rounded-2xl font-semibold text-sm opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:bg-white hover:shadow-2xl hover:scale-105 border border-white/50"
@@ -470,26 +505,21 @@ const Shop = () => {
                     </button>
                   </div>
 
-                  {/* Product Info - Enhanced */}
                   <div className="relative z-10 p-6 bg-white">
-                    {/* Category Tag */}
                     <div className="mb-3">
                       <span className="inline-block bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium capitalize">
                         {product.category}
                       </span>
                     </div>
 
-                    {/* Product Name */}
                     <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-1 group-hover:text-gray-700 transition-colors duration-300">
                       {product.name}
                     </h3>
 
-                    {/* Product Description */}
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
 
-                    {/* Price and Actions */}
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
                         <span className="text-2xl font-bold text-red-600">
@@ -500,7 +530,6 @@ const Shop = () => {
                         </span>
                       </div>
 
-                      {/* Add to Cart Button - Enhanced */}
                       <button
                         onClick={() => handleAddToCart(product)}
                         disabled={!product.inStock}
@@ -508,23 +537,19 @@ const Shop = () => {
                           !product.inStock ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       >
-                        {/* Animated Background */}
                         <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         
-                        {/* Button Content */}
                         <span className="relative z-10 flex items-center space-x-2">
                           <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
                           <span>{product.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
                         </span>
 
-                        {/* Sparkle Effect */}
                         <div className="absolute inset-0 overflow-hidden rounded-2xl">
                           <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-400 opacity-0 group-hover:opacity-20 blur-lg transition-opacity duration-500"></div>
                         </div>
                       </button>
                     </div>
 
-                    {/* Stock Status */}
                     <div className="mt-4 flex items-center justify-between text-xs">
                       <span className={`flex items-center space-x-1 ${
                         product.inStock ? 'text-green-600' : 'text-red-600'
@@ -538,7 +563,6 @@ const Shop = () => {
                     </div>
                   </div>
 
-                  {/* Border Glow Effect */}
                   <div className="absolute inset-0 rounded-3xl border-2 border-transparent bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-padding opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
                     <div className="absolute inset-[2px] rounded-3xl bg-white z-10"></div>
                   </div>
@@ -549,7 +573,6 @@ const Shop = () => {
             {/* Pagination Controls */}
             {filteredProducts.length > productsPerPage && (
               <div className="flex justify-center items-center space-x-2 mt-12">
-                {/* Previous Button */}
                 <button
                   onClick={prevPage}
                   disabled={currentPage === 1}
@@ -563,7 +586,6 @@ const Shop = () => {
                   <span>Previous</span>
                 </button>
 
-                {/* Page Numbers */}
                 <div className="flex items-center space-x-1">
                   {getPageNumbers().map((number, index) => (
                     number === '...' ? (
@@ -586,7 +608,6 @@ const Shop = () => {
                   ))}
                 </div>
 
-                {/* Next Button */}
                 <button
                   onClick={nextPage}
                   disabled={currentPage === totalPages}
@@ -602,7 +623,6 @@ const Shop = () => {
               </div>
             )}
 
-            {/* Empty State */}
             {filteredProducts.length === 0 && (
               <div className="text-center py-20">
                 <div className="max-w-md mx-auto">
@@ -628,7 +648,6 @@ const Shop = () => {
         </section>
       </div>
 
-      {/* Custom CSS for range slider */}
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;

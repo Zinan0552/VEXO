@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Eye, Truck, CheckCircle, Edit, X, Save, Download, 
@@ -21,33 +22,51 @@ const OrderManagement = () => {
   const [updatingOrder, setUpdatingOrder] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch all users and their orders from API
   useEffect(() => {
     fetchAllOrders();
   }, []);
 
+  // ✅ Fetch orders from both users and global orders endpoint
   const fetchAllOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/users');
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      const users = await response.json();
       
-      // Extract all orders from all users
-      const allOrders = users.flatMap(user => 
+      // Fetch from global orders endpoint
+      const ordersResponse = await fetch('http://localhost:3000/orders');
+      let globalOrders = [];
+      
+      if (ordersResponse.ok) {
+        globalOrders = await ordersResponse.json();
+      }
+      
+      // Also fetch from users to get complete order data
+      const usersResponse = await fetch('http://localhost:3000/users');
+      const users = await usersResponse.json();
+      
+      const userOrders = users.flatMap(user => 
         (user.orders || []).map(order => ({
           ...order,
           userId: user.id,
           userEmail: user.email,
-          userName: user.username,
+          userName: user.username || user.name,
           userPhone: user.phone,
-          userAvatar: user.avatar
+          userAvatar: user.avatar,
+          source: 'user' // Mark where this order came from
         }))
       );
       
-      setOrders(allOrders);
+      // Combine both sources, prioritizing user orders (more complete data)
+      const allOrders = [...globalOrders, ...userOrders];
+      
+      // Remove duplicates based on order ID
+      const uniqueOrders = allOrders.reduce((acc, order) => {
+        if (!acc.find(o => o.id === order.id)) {
+          acc.push(order);
+        }
+        return acc;
+      }, []);
+      
+      setOrders(uniqueOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to load orders');
@@ -56,39 +75,59 @@ const OrderManagement = () => {
     }
   };
 
-  // Update order in user's data
-  const updateOrderInUser = async (userId, orderId, updatedData) => {
+  // ✅ Find which user owns this order
+  const findOrderOwner = async (orderId) => {
+    try {
+      const usersResponse = await fetch('http://localhost:3000/users');
+      const users = await usersResponse.json();
+      
+      for (const user of users) {
+        if (user.orders && user.orders.some(order => order.id === orderId)) {
+          return user;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Error finding order owner:', error);
+      return null;
+    }
+  };
+
+  // ✅ Update order in both user data and global orders
+  const updateOrder = async (orderId, updatedData) => {
     try {
       setUpdatingOrder(true);
       
-      // First get the user
-      const userResponse = await fetch(`http://localhost:5001/users/${userId}`);
-      if (!userResponse.ok) throw new Error('Failed to fetch user');
+      // 1. Find the user who owns this order
+      const orderOwner = await findOrderOwner(orderId);
       
-      const user = await userResponse.json();
-      
-      // Update the specific order in user's orders array
-      const updatedOrders = user.orders.map(order => 
-        order.id === orderId ? { ...order, ...updatedData } : order
-      );
-      
-      // Update the user with modified orders
-      const updateResponse = await fetch(`http://localhost:5001/users/${userId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orders: updatedOrders
-        }),
-      });
-
-      if (!updateResponse.ok) {
-        throw new Error('Failed to update order');
+      if (orderOwner) {
+        // 2. Update in user's orders array
+        const updatedUserOrders = orderOwner.orders.map(order => 
+          order.id === orderId ? { ...order, ...updatedData } : order
+        );
+        
+        await fetch(`http://localhost:3000/users/${orderOwner.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orders: updatedUserOrders })
+        });
+        
+        console.log(`✅ Updated order ${orderId} in user ${orderOwner.id}`);
       }
 
-      const updatedUser = await updateResponse.json();
-      return updatedUser.orders.find(order => order.id === orderId);
+      // 3. Update in global orders endpoint
+      const globalOrderResponse = await fetch(`http://localhost:3000/orders/${orderId}`);
+      if (globalOrderResponse.ok) {
+        await fetch(`http://localhost:3000/orders/${orderId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+        console.log(`✅ Updated order ${orderId} in global orders`);
+      }
+
+      return updatedData;
     } catch (error) {
       console.error('Error updating order:', error);
       throw error;
@@ -97,8 +136,59 @@ const OrderManagement = () => {
     }
   };
 
-  // Navigation functions
-  const navigateToCustomerProfile = (userId) => navigate(`/admin/users/${userId}`);
+  // ✅ Update multiple orders (for bulk operations)
+  const updateMultipleOrders = async (orderIds, updatedData) => {
+    try {
+      setUpdatingOrder(true);
+      
+      const usersResponse = await fetch('http://localhost:3000/users');
+      const users = await usersResponse.json();
+      
+      // Update in each user's orders
+      for (const user of users) {
+        if (user.orders) {
+          const hasRelevantOrders = user.orders.some(order => 
+            orderIds.includes(order.id)
+          );
+          
+          if (hasRelevantOrders) {
+            const updatedUserOrders = user.orders.map(order => 
+              orderIds.includes(order.id) ? { ...order, ...updatedData } : order
+            );
+            
+            await fetch(`http://localhost:3000/users/${user.id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orders: updatedUserOrders })
+            });
+            
+            console.log(`✅ Updated ${orderIds.length} orders in user ${user.id}`);
+          }
+        }
+      }
+
+      // Update in global orders
+      for (const orderId of orderIds) {
+        const globalOrderResponse = await fetch(`http://localhost:3000/orders/${orderId}`);
+        if (globalOrderResponse.ok) {
+          await fetch(`http://localhost:3000/orders/${orderId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData)
+          });
+        }
+      }
+
+      return updatedData;
+    } catch (error) {
+      console.error('Error updating multiple orders:', error);
+      throw error;
+    } finally {
+      setUpdatingOrder(false);
+    }
+  };
+
+  const navigateToDashboard = () => navigate('/admino');
 
   const handleRefreshOrders = async () => {
     setRefreshing(true);
@@ -107,7 +197,6 @@ const OrderManagement = () => {
     toast.success('Orders refreshed successfully');
   };
 
-  // Filter orders based on search and status
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.id?.toString().includes(searchTerm.toLowerCase()) ||
@@ -124,12 +213,19 @@ const OrderManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Processing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Shipped': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      case 'Delivered': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Completed': 
+      case 'Delivered': 
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'Processing': 
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'Shipped': 
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'Cancelled': 
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'Confirmed':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      default: 
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -144,12 +240,13 @@ const OrderManagement = () => {
         return <Truck className="w-4 h-4 text-blue-600" />;
       case 'Cancelled': 
         return <X className="w-4 h-4 text-red-600" />;
+      case 'Confirmed':
+        return <CheckCircle className="w-4 h-4 text-purple-600" />;
       default: 
         return <Loader className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  // Order Actions
   const viewOrderDetails = (order) => {
     setSelectedOrder(order);
     setIsViewModalOpen(true);
@@ -162,15 +259,19 @@ const OrderManagement = () => {
     }
 
     try {
-      const updatedOrder = await updateOrderInUser(order.userId, order.id, {
+      const updatedData = {
         status: 'Shipped',
         trackingNumber: newTrackingNumber,
         shippedDate: new Date().toLocaleDateString()
-      });
+      };
 
+      await updateOrder(order.id, updatedData);
+      
+      // Update local state
       setOrders(orders.map(o => 
-        o.id === order.id && o.userId === order.userId ? { ...o, ...updatedOrder } : o
+        o.id === order.id ? { ...o, ...updatedData } : o
       ));
+      
       toast.success(`Order #${order.id} marked as shipped`);
       setNewTrackingNumber('');
       setIsEditModalOpen(false);
@@ -181,14 +282,17 @@ const OrderManagement = () => {
 
   const markAsCompleted = async (order) => {
     try {
-      const updatedOrder = await updateOrderInUser(order.userId, order.id, {
+      const updatedData = {
         status: 'Completed',
         deliveredDate: new Date().toLocaleDateString()
-      });
+      };
 
+      await updateOrder(order.id, updatedData);
+      
       setOrders(orders.map(o => 
-        o.id === order.id && o.userId === order.userId ? { ...o, ...updatedOrder } : o
+        o.id === order.id ? { ...o, ...updatedData } : o
       ));
+      
       toast.success(`Order #${order.id} marked as completed`);
     } catch (error) {
       toast.error('Failed to update order');
@@ -197,14 +301,17 @@ const OrderManagement = () => {
 
   const markAsDelivered = async (order) => {
     try {
-      const updatedOrder = await updateOrderInUser(order.userId, order.id, {
+      const updatedData = {
         status: 'Delivered',
         deliveredDate: new Date().toLocaleDateString()
-      });
+      };
 
+      await updateOrder(order.id, updatedData);
+      
       setOrders(orders.map(o => 
-        o.id === order.id && o.userId === order.userId ? { ...o, ...updatedOrder } : o
+        o.id === order.id ? { ...o, ...updatedData } : o
       ));
+      
       toast.success(`Order #${order.id} marked as delivered`);
     } catch (error) {
       toast.error('Failed to update order');
@@ -214,14 +321,17 @@ const OrderManagement = () => {
   const cancelOrder = async (order) => {
     if (window.confirm(`Are you sure you want to cancel order #${order.id}?`)) {
       try {
-        const updatedOrder = await updateOrderInUser(order.userId, order.id, {
+        const updatedData = {
           status: 'Cancelled',
           cancelledDate: new Date().toLocaleDateString()
-        });
+        };
 
+        await updateOrder(order.id, updatedData);
+        
         setOrders(orders.map(o => 
-          o.id === order.id && o.userId === order.userId ? { ...o, ...updatedOrder } : o
+          o.id === order.id ? { ...o, ...updatedData } : o
         ));
+        
         toast.success(`Order #${order.id} has been cancelled`);
       } catch (error) {
         toast.error('Failed to cancel order');
@@ -229,12 +339,15 @@ const OrderManagement = () => {
     }
   };
 
-  const updateOrder = async (updatedOrder) => {
+  const saveOrderUpdate = async (updatedOrder) => {
     try {
-      const result = await updateOrderInUser(updatedOrder.userId, updatedOrder.id, updatedOrder);
+      const { source, ...orderData } = updatedOrder; // Remove source field
+      await updateOrder(updatedOrder.id, orderData);
+      
       setOrders(orders.map(o => 
-        o.id === updatedOrder.id && o.userId === updatedOrder.userId ? { ...o, ...result } : o
+        o.id === updatedOrder.id ? { ...o, ...orderData } : o
       ));
+      
       toast.success(`Order #${updatedOrder.id} updated successfully`);
       setIsEditModalOpen(false);
       setEditingOrder(null);
@@ -259,10 +372,6 @@ const OrderManagement = () => {
     window.open(`mailto:${order.userEmail}?subject=Regarding Order #${order.id}`, '_blank');
   };
 
-  const viewCustomerProfile = (order) => {
-    navigateToCustomerProfile(order.userId);
-  };
-
   const exportOrders = () => {
     const csvContent = [
       ['Order ID', 'Customer', 'Email', 'Phone', 'Products', 'Total Amount', 'Status', 'Order Date', 'Payment Method', 'Tracking Number', 'Shipping Address'],
@@ -270,7 +379,7 @@ const OrderManagement = () => {
         order.id,
         order.userName,
         order.userEmail,
-        order.userPhone,
+        order.userPhone || 'N/A',
         order.items?.map(item => `${item.name} (Qty: ${item.quantity})`).join('; '),
         `$${order.totalAmount}`,
         order.status,
@@ -296,6 +405,7 @@ const OrderManagement = () => {
     const counts = {
       All: orders.length,
       Processing: orders.filter(o => o.status === 'Processing').length,
+      Confirmed: orders.filter(o => o.status === 'Confirmed').length,
       Shipped: orders.filter(o => o.status === 'Shipped').length,
       Delivered: orders.filter(o => o.status === 'Delivered').length,
       Completed: orders.filter(o => o.status === 'Completed').length,
@@ -315,11 +425,17 @@ const OrderManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div className="flex items-center gap-4">
-          
+          <button
+            onClick={navigateToDashboard}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Dashboard
+          </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Order Management</h1>
             <p className="text-gray-600 mt-2">Manage and track all customer orders</p>
@@ -350,7 +466,7 @@ const OrderManagement = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         {Object.entries(statusCounts).map(([status, count]) => (
           <div 
             key={status}
@@ -389,6 +505,7 @@ const OrderManagement = () => {
           >
             <option value="All">All Status</option>
             <option value="Processing">Processing</option>
+            <option value="Confirmed">Confirmed</option>
             <option value="Shipped">Shipped</option>
             <option value="Delivered">Delivered</option>
             <option value="Completed">Completed</option>
@@ -416,9 +533,7 @@ const OrderManagement = () => {
               {filteredOrders.map((order) => (
                 <tr key={`${order.userId}-${order.id}`} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    <div className="flex items-center gap-2">
-                      #{order.id}
-                    </div>
+                    #{order.id}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -427,6 +542,9 @@ const OrderManagement = () => {
                           src={order.userAvatar} 
                           alt={order.userName}
                           className="w-8 h-8 rounded-full"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/32x32?text=User";
+                          }}
                         />
                       ) : (
                         <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -487,12 +605,24 @@ const OrderManagement = () => {
                         <Truck className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => markAsCompleted(order)}
-                        disabled={['Completed', 'Cancelled'].includes(order.status)}
+                        onClick={() => markAsDelivered(order)}
+                        disabled={!['Shipped'].includes(order.status)}
                         className={`p-1 rounded transition-colors ${
-                          ['Completed', 'Cancelled'].includes(order.status)
+                          !['Shipped'].includes(order.status)
                             ? 'text-gray-400 cursor-not-allowed' 
                             : 'text-purple-600 hover:text-purple-900 hover:bg-purple-50'
+                        }`}
+                        title="Mark as Delivered"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => markAsCompleted(order)}
+                        disabled={!['Delivered'].includes(order.status)}
+                        className={`p-1 rounded transition-colors ${
+                          !['Delivered'].includes(order.status)
+                            ? 'text-gray-400 cursor-not-allowed' 
+                            : 'text-emerald-600 hover:text-emerald-900 hover:bg-emerald-50'
                         }`}
                         title="Mark as Completed"
                       >
@@ -572,7 +702,7 @@ const OrderManagement = () => {
                       <span className="text-gray-600">Phone:</span>
                       <span className="font-medium flex items-center gap-1">
                         <Phone className="w-4 h-4" />
-                        {selectedOrder.userPhone}
+                        {selectedOrder.userPhone || 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -628,6 +758,9 @@ const OrderManagement = () => {
                       <p><strong>Address:</strong> {selectedOrder.shippingDetails.address}</p>
                       <p><strong>City:</strong> {selectedOrder.shippingDetails.city}</p>
                       <p><strong>Postal Code:</strong> {selectedOrder.shippingDetails.postalCode}</p>
+                      {selectedOrder.shippingDetails.phone && (
+                        <p><strong>Phone:</strong> {selectedOrder.shippingDetails.phone}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -643,6 +776,9 @@ const OrderManagement = () => {
                         src={item.image} 
                         alt={item.name}
                         className="w-16 h-16 rounded-lg object-cover"
+                        onError={(e) => {
+                          e.target.src = "https://via.placeholder.com/64x64?text=No+Img";
+                        }}
                       />
                       <div className="flex-1">
                         <h5 className="font-medium text-gray-900">{item.name}</h5>
@@ -650,7 +786,9 @@ const OrderManagement = () => {
                         <div className="flex gap-4 mt-1">
                           <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
                           <span className="text-sm text-gray-600">Price: ${item.price}</span>
-                          <span className="text-sm text-gray-600">Category: {item.category}</span>
+                          {item.category && (
+                            <span className="text-sm text-gray-600">Category: {item.category}</span>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -679,19 +817,17 @@ const OrderManagement = () => {
                         <strong>Shipped Date:</strong> {selectedOrder.shippedDate}
                       </p>
                     )}
+                    {selectedOrder.deliveredDate && (
+                      <p className="text-sm text-green-800 mt-1">
+                        <strong>Delivered Date:</strong> {selectedOrder.deliveredDate}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
             </div>
             <div className="p-6 border-t bg-gray-50 flex justify-between">
               <div className="flex gap-3">
-                <button
-                  onClick={() => viewCustomerProfile(selectedOrder)}
-                  className="flex items-center space-x-2 px-4 py-2 text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  <span>View Customer</span>
-                </button>
                 <button
                   onClick={() => contactCustomer(selectedOrder)}
                   className="flex items-center space-x-2 px-4 py-2 text-cyan-700 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100 transition-colors"
@@ -754,6 +890,7 @@ const OrderManagement = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     >
                       <option value="Processing">Processing</option>
+                      <option value="Confirmed">Confirmed</option>
                       <option value="Shipped">Shipped</option>
                       <option value="Delivered">Delivered</option>
                       <option value="Completed">Completed</option>
@@ -798,7 +935,7 @@ const OrderManagement = () => {
                 Cancel
               </button>
               <button
-                onClick={() => editingOrder ? updateOrder(editingOrder) : markAsShipped(selectedOrder)}
+                onClick={() => editingOrder ? saveOrderUpdate(editingOrder) : markAsShipped(selectedOrder)}
                 disabled={updatingOrder}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2 disabled:bg-red-400"
               >

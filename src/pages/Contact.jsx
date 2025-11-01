@@ -39,7 +39,7 @@ export default function Contact() {
 
       console.log("Sending message:", contactMessage);
 
-      const response = await fetch("http://localhost:5001/contactMessages", {
+      const response = await fetch("http://localhost:3000/contactMessages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

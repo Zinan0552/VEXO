@@ -384,7 +384,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`http://localhost:5001/users?email=${email}`);
+      const response = await fetch(`http://localhost:3000/users?email=${email}`);
       if (!response.ok) throw new Error("Failed to fetch user data");
       
       const users = await response.json();
@@ -405,7 +405,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
       try {
-        await fetch(`http://localhost:5001/users/${user.id}`, {
+        await fetch(`http://localhost:3000/users/${user.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ isLoggedIn: true })
@@ -424,7 +424,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     if (user?.id) {
       try {
-        await fetch(`http://localhost:5001/users/${user.id}`, {
+        await fetch(`http://localhost:3000/users/${user.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ isLoggedIn: false })
@@ -451,7 +451,7 @@ export const AuthProvider = ({ children }) => {
 
       if (user?.id) {
         try {
-          await fetch(`http://localhost:5001/users/${user.id}`, {
+          await fetch(`http://localhost:3000/users/${user.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedUserData)
@@ -469,7 +469,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await fetch('http://localhost:5001/users', {
+      const response = await fetch('http://localhost:3000/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -519,8 +519,11 @@ export const AuthProvider = ({ children }) => {
     } else {
       updatedCart = [...currentCart, { ...product, quantity: 1 }];
     }
+
     
     await updateUser({ cart: updatedCart });
+    console.log("state",updateUser);
+    
     return updatedCart;
   };
 
